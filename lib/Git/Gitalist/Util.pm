@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-class Gitalist::Git::Util {
+class Git::Gitalist::Util {
     use File::Which;
     use Git::PurePerl;
     use IPC::Run qw(run start);
@@ -8,7 +8,7 @@ class Gitalist::Git::Util {
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
 
     has repository => (
-        isa => 'Gitalist::Git::Repository',
+        isa => 'Git::Gitalist::Repository',
         handles => { gitdir => 'path' },
         is => 'bare', # No accessor
         weak_ref => 1, # Weak, you have to hold onto me.
@@ -75,7 +75,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Util - Class for utilities to run git or deal with Git::PurePerl
+Git::Gitalist::Util - Class for utilities to run git or deal with Git::PurePerl
 
 =head1 SEE ALSO
 

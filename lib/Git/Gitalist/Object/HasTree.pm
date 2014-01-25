@@ -1,8 +1,8 @@
-package Gitalist::Git::Object::HasTree;
+package Git::Gitalist::Object::HasTree;
 use MooseX::Declare;
 
-role Gitalist::Git::Object::HasTree {
-    has tree => ( isa => 'ArrayRef[Gitalist::Git::Object]',
+role Git::Gitalist::Object::HasTree {
+    has tree => ( isa => 'ArrayRef[Git::Gitalist::Object]',
                   required => 0,
                   is => 'ro',
                   lazy_build => 1 );
@@ -18,7 +18,7 @@ role Gitalist::Git::Object::HasTree {
             my ($mode, $type, $object, $file) = split /\s+/, $line, 4;
             # Ignore commits, these represent submodules
             next if $type eq 'commit';
-            my $class = 'Gitalist::Git::Object::' . ucfirst($type);
+            my $class = 'Git::Gitalist::Object::' . ucfirst($type);
             push @ret, $class->new( mode => oct $mode,
                                     type => $type,
                                     sha1 => $object,
@@ -44,7 +44,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Object::HasTree - Git::Object::HasTree module for Gitalist
+Git::Gitalist::Object::HasTree - Git::Object::HasTree module for Gitalist
 
 =head1 SYNOPSIS
 

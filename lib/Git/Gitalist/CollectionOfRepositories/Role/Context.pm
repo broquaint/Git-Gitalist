@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-role Gitalist::Git::CollectionOfRepositories::Role::Context {
+role Git::Gitalist::CollectionOfRepositories::Role::Context {
     method implementation_class {
         $self->meta->name
     }

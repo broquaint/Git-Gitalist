@@ -1,7 +1,7 @@
 use MooseX::Declare;
 
-class Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList
-    extends Gitalist::Git::CollectionOfRepositories::FromDirectory {
+class Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList
+    extends Git::Gitalist::CollectionOfRepositories::FromDirectory {
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Path::Class qw/File Dir/;
 
@@ -16,7 +16,7 @@ class Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList
 
     method _build_repositories {
         return [
-            map  Gitalist::Git::Repository->new($_),
+            map  Git::Gitalist::Repository->new($_),
             grep -d $_,
             map  $self->repo_dir->subdir($_),
             map  [split]->[0], $self->whitelist->slurp(chomp => 1)
@@ -27,11 +27,11 @@ class Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList
 __END__
 =head1 NAME
 
-Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList - Model of a repositories listed in a file in a given directory.
+Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList - Model of a repositories listed in a file in a given directory.
 
 =head1 SYNOPSIS
 
-    my $repo = Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList->new(
+    my $repo = Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList->new(
       repo_dir  => $Dir,
       whitelist => 'projects.list',
     );
@@ -53,9 +53,9 @@ different repository within L</repo_dir>.
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>,
-L<Gitalist::Git::Repository>,
-L<Gitalist::Git::CollectionOfRepositories::FromDirectory>
+L<Git::Gitalist::CollectionOfRepositories>,
+L<Git::Gitalist::Repository>,
+L<Git::Gitalist::CollectionOfRepositories::FromDirectory>
 
 =head1 AUTHORS
 

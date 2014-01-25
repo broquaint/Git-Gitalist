@@ -1,9 +1,9 @@
-package Gitalist::Git::Object::Commit;
+package Git::Gitalist::Object::Commit;
 use MooseX::Declare;
 
-class Gitalist::Git::Object::Commit
-    extends Gitalist::Git::Object
-    with Gitalist::Git::Object::HasTree {
+class Git::Gitalist::Object::Commit
+    extends Git::Gitalist::Object
+    with Git::Gitalist::Object::HasTree {
         use MooseX::Types::Moose qw/Str Int Bool Maybe ArrayRef/;
         use MooseX::Types::Common::String qw/NonEmptySimpleStr SimpleStr/;
         use Moose::Autobox;
@@ -215,7 +215,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Object::Commit - Git::Object::Commit module for Gitalist
+Git::Gitalist::Object::Commit - Git::Object::Commit module for Gitalist
 
 =head1 SYNOPSIS
 
@@ -224,7 +224,7 @@ Gitalist::Git::Object::Commit - Git::Object::Commit module for Gitalist
 =head1 DESCRIPTION
 
 Represents a commit object in a git repository.
-Subclass of C<Gitalist::Git::Object>.
+Subclass of C<Git::Gitalist::Object>.
 
 
 =head1 ATTRIBUTES

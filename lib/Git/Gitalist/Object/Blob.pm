@@ -1,7 +1,7 @@
-package Gitalist::Git::Object::Blob;
+package Git::Gitalist::Object::Blob;
 use MooseX::Declare;
 
-class Gitalist::Git::Object::Blob extends Gitalist::Git::Object {
+class Git::Gitalist::Object::Blob extends Git::Gitalist::Object {
   has '+type' => ( default => 'blob' );
 }
 
@@ -11,7 +11,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Object::Blob - Git::Object::Blob module for Gitalist
+Git::Gitalist::Object::Blob - Git::Object::Blob module for Gitalist
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ Gitalist::Git::Object::Blob - Git::Object::Blob module for Gitalist
 =head1 DESCRIPTION
 
 Represents a blob object in a git repository.
-Subclass of C<Gitalist::Git::Object>.
+Subclass of C<Git::Gitalist::Object>.
 
 
 =head1 ATTRIBUTES

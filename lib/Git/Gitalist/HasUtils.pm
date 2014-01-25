@@ -1,7 +1,7 @@
 use MooseX::Declare;
 
-role Gitalist::Git::HasUtils {
-    use Gitalist::Git::Util;
+role Git::Gitalist::HasUtils {
+    use Git::Gitalist::Util;
 
     method BUILD {}
     after BUILD {
@@ -10,7 +10,7 @@ role Gitalist::Git::HasUtils {
     }
 
     has _util => (
-        isa => 'Gitalist::Git::Util',
+        isa => 'Git::Gitalist::Util',
         lazy => 1,
         is => 'bare',
         builder => '_build_util',
@@ -32,7 +32,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::HasUtils - Role for classes with an instance of Gitalist::Git::Util
+Git::Gitalist::HasUtils - Role for classes with an instance of Git::Gitalist::Util
 
 =head1 AUTHORS
 

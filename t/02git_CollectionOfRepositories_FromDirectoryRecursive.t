@@ -13,11 +13,11 @@ use Test::Exception;
 use Path::Class::Dir;
 use Path::Class qw' file dir ';
 
-BEGIN { use_ok 'Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive' }
+BEGIN { use_ok 'Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive' }
 
 my $repo_dir = dir( "$Bin/lib/repositories" );
-my $repo = Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $repo_dir );
-isa_ok($repo, 'Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive');
+my $repo = Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $repo_dir );
+isa_ok($repo, 'Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive');
 
 is($repo->repo_dir, $repo_dir, "repo->repo_dir is correct" );
 
@@ -25,7 +25,7 @@ is($repo->repo_dir, $repo_dir, "repo->repo_dir is correct" );
 
 my $repository_list = $repo->repositories;
 is( scalar @{$repository_list}, 7, '->repositories is an array with the correct number of members' );
-isa_ok($repository_list->[0], 'Gitalist::Git::Repository');
+isa_ok($repository_list->[0], 'Git::Gitalist::Repository');
 my @expected_names = sort map file($_)->stringify, qw(bare.git recursive/barerecursive.git nodescription repo1 recursive/other_bare.git recursive/goingdeeper/scratch.git recursive/goingdeeper2/scratch.git);
 my @sorted_names   = sort map { $_->{name} } @{$repository_list};
 is_deeply( \@sorted_names, \@expected_names , 'Repositories are correctly loaded' );
@@ -45,14 +45,14 @@ dies_ok {
 } 'Relative directory not contained within repo_dir';
 
 my $repository = $get_repo_from_native_name->( "repo1" );
-isa_ok($repository, 'Gitalist::Git::Repository');
+isa_ok($repository, 'Git::Gitalist::Repository');
 
 $repository = $get_repo_from_native_name->( "recursive/goingdeeper/scratch.git" );
-isa_ok($repository, 'Gitalist::Git::Repository');
+isa_ok($repository, 'Git::Gitalist::Repository');
 cmp_ok($repository->description, 'eq', 'goingdeeper/scratch.git repo', 'Got the right repo');
 
 $repository = $get_repo_from_native_name->( "recursive/goingdeeper2/scratch.git" );
-isa_ok($repository, 'Gitalist::Git::Repository');
+isa_ok($repository, 'Git::Gitalist::Repository');
 cmp_ok($repository->description, 'eq', 'goingdeeper2/scratch.git repo', 'Got the right repo');
 
 
@@ -60,7 +60,7 @@ cmp_ok($repository->description, 'eq', 'goingdeeper2/scratch.git repo', 'Got the
 # was a relative path
 lives_ok {
   my $repo2_dir = "$Bin/lib/../lib/repositories";
-  my $repo2 = Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $repo2_dir );
+  my $repo2 = Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $repo2_dir );
 
   my $repo2_proj = $repo2->get_repository( dir( "repo1" )->stringify );
 } 'relative repo_dir properly handled';

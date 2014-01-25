@@ -1,4 +1,4 @@
-package Gitalist::Git::Types;
+package Git::Gitalist::Types;
 
 use MooseX::Types
      -declare => [qw/

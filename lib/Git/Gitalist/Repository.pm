@@ -1,11 +1,11 @@
 use MooseX::Declare;
 
-class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Serializable) {
+class Git::Gitalist::Repository with (Git::Gitalist::HasUtils, Git::Gitalist::Serializable) {
     use MooseX::Storage::Meta::Attribute::Trait::DoNotSerialize;
 
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Moose          qw/Str Maybe Bool HashRef ArrayRef/;
-    use Gitalist::Git::Types          qw/SHA1 Dir/;
+    use Git::Gitalist::Types          qw/SHA1 Dir/;
     use MooseX::Types::DateTime       qw/ DateTime /;
 
     use Moose::Autobox;
@@ -15,12 +15,12 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
 
     use if $^O ne 'MSWin32' => 'I18N::Langinfo', qw/langinfo CODESET/;
 
-    use Gitalist::Git::Object::Blob;
-    use Gitalist::Git::Object::Tree;
-    use Gitalist::Git::Object::Commit;
-    use Gitalist::Git::Object::Tag;
-    use Gitalist::Git::Head;
-    use Gitalist::Git::Tag;
+    use Git::Gitalist::Object::Blob;
+    use Git::Gitalist::Object::Tree;
+    use Git::Gitalist::Object::Commit;
+    use Git::Gitalist::Object::Tag;
+    use Git::Gitalist::Head;
+    use Git::Gitalist::Tag;
 
     our $SHA1RE = qr/[0-9a-fA-F]{40}/;
 
@@ -71,10 +71,10 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
                              ? 1 : 0
                          },
                      );
-    has heads => ( isa => ArrayRef['Gitalist::Git::Head'],
+    has heads => ( isa => ArrayRef['Git::Gitalist::Head'],
                    is => 'ro',
                    lazy_build => 1);
-    has tags => ( isa => ArrayRef['Gitalist::Git::Tag'],
+    has tags => ( isa => ArrayRef['Git::Gitalist::Tag'],
                    is => 'ro',
                    lazy_build => 1);
     has references => ( isa => HashRef[ArrayRef[Str]],
@@ -101,7 +101,7 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
         }
         my $type = $self->run_cmd('cat-file', '-t', $sha1);
         chomp($type);
-        my $class = 'Gitalist::Git::Object::' . ucfirst($type);
+        my $class = 'Git::Gitalist::Object::' . ucfirst($type);
         $class->new(
             repository => $self,
             sha1 => $sha1,
@@ -209,7 +209,7 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
 
     ## BUILDERS
     method _build_util {
-        Gitalist::Git::Util->new(
+        Git::Gitalist::Util->new(
             repository => $self,
         );
     }
@@ -252,7 +252,7 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
         my @revlines = $self->run_cmd_list(qw/for-each-ref --sort=-committerdate /, '--format=%(objectname)%00%(refname)%00%(committer)', 'refs/heads');
         my @ret;
         for my $line (@revlines) {
-            push @ret, Gitalist::Git::Head->new($line);
+            push @ret, Git::Gitalist::Head->new($line);
         }
         return \@ret;
     }
@@ -264,8 +264,8 @@ class Gitalist::Git::Repository with (Gitalist::Git::HasUtils, Gitalist::Git::Se
           'refs/tags'
         );
         return [
-            map  Gitalist::Git::Tag->new($_),
-            grep Gitalist::Git::Tag::is_valid_tag($_), @revlines
+            map  Git::Gitalist::Tag->new($_),
+            grep Git::Gitalist::Tag::is_valid_tag($_), @revlines
         ];
     }
 
@@ -297,12 +297,12 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Repository - Model of a git repository
+Git::Gitalist::Repository - Model of a git repository
 
 =head1 SYNOPSIS
 
     my $gitrepo = dir('/repo/base/Gitalist');
-    my $repository = Gitalist::Git::Repository->new($gitrepo);
+    my $repository = Git::Gitalist::Repository->new($gitrepo);
      $repository->name;        # 'Gitalist'
      $repository->path;        # '/repo/base/Gitalist/.git'
      $repository->description; # 'Unnamed repository.'
@@ -358,7 +358,7 @@ Return the sha1 for HEAD, or any specified head.
 
 =head2 get_object ($sha1)
 
-Return an appropriate subclass of L<Gitalist::Git::Object> for the given sha1.
+Return an appropriate subclass of L<Git::Gitalist::Object> for the given sha1.
 
 =head2 list_revs ($sha1, $count?, $skip?, \%search?, $file?)
 
@@ -372,7 +372,7 @@ Returns a filehandle to read from.
 
 =head2 diff ($commit, $patch?, $parent?, $file?)
 
-Generate a diff from a given L<Gitalist::Git::Object>.
+Generate a diff from a given L<Git::Gitalist::Object>.
 
 =head2 reflog (@lorgargs)
 
@@ -383,7 +383,7 @@ FIXME Should this return objects?
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::Util> L<Gitalist::Git::Object>
+L<Git::Gitalist::Util> L<Git::Gitalist::Object>
 
 
 =head1 AUTHORS

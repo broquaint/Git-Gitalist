@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-role Gitalist::Git::CollectionOfRepositoriesWithRequestState {
+role Git::Gitalist::CollectionOfRepositoriesWithRequestState {
     requires qw/
         implementation_class
         extract_request_state

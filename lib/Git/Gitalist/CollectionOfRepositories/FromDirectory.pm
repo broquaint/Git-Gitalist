@@ -1,7 +1,7 @@
 use MooseX::Declare;
 
-class Gitalist::Git::CollectionOfRepositories::FromDirectory
-    with Gitalist::Git::CollectionOfRepositories {
+class Git::Gitalist::CollectionOfRepositories::FromDirectory
+    with Git::Gitalist::CollectionOfRepositories {
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Path::Class qw/Dir/;
 
@@ -28,7 +28,7 @@ class Gitalist::Git::CollectionOfRepositories::FromDirectory
     }
 
     method _get_repo_from_name (NonEmptySimpleStr $name) {
-        return Gitalist::Git::Repository->new($self->_get_path_for_repository_name($name));
+        return Git::Gitalist::Repository->new($self->_get_path_for_repository_name($name));
     }
 
     ## Builders
@@ -50,11 +50,11 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::CollectionOfRepositories::FromDirectory - Model of a directory containing git repositories
+Git::Gitalist::CollectionOfRepositories::FromDirectory - Model of a directory containing git repositories
 
 =head1 SYNOPSIS
 
-    my $repo = Gitalist::Git::CollectionOfRepositories::FromDirectory->new( repo_dir => $Dir );
+    my $repo = Git::Gitalist::CollectionOfRepositories::FromDirectory->new( repo_dir => $Dir );
     my $repository_list = $repo->repositories;
     my $first_repository = $repository_list->[0];
     my $named_repository = $repo->get_repository('Gitalist');
@@ -71,7 +71,7 @@ The filesystem root of the C<Repo>.
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>, L<Gitalist::Git::Repository>
+L<Git::Gitalist::CollectionOfRepositories>, L<Git::Gitalist::Repository>
 
 =head1 AUTHORS
 

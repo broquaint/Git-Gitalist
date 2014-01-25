@@ -106,13 +106,13 @@ throws_ok { Gitalist::Model::CollectionOfRepos->COMPONENT($ctx_gen->(), { repos 
 {
     my $i = test_with_config({ repo_dir => "$FindBin::Bin/lib/repositories"});
     is scalar($i->repositories->flatten), 3, 'Found 3 repos';
-    isa_ok $i, 'Gitalist::Git::CollectionOfRepositories::FromDirectory';
+    isa_ok $i, 'Git::Gitalist::CollectionOfRepositories::FromDirectory';
 }
 
 {
     my $i = test_with_config({ repo_dir => "$FindBin::Bin/lib/repositories", search_recursively => 1 });
     is scalar($i->repositories->flatten), 7, 'Found 7 repos recursively using config';
-    isa_ok $i, 'Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive';
+    isa_ok $i, 'Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive';
 }
  {
     my($tempfh, $wl) = tempfile(UNLINK => 1);
@@ -120,7 +120,7 @@ throws_ok { Gitalist::Model::CollectionOfRepos->COMPONENT($ctx_gen->(), { repos 
     close $tempfh;
     my $i = test_with_config({ repo_dir => "$FindBin::Bin/lib/repositories", whitelist => $wl });
     is scalar($i->repositories->flatten), 1, 'Found 1 repos using whitelist';
-    isa_ok $i, 'Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList';
+    isa_ok $i, 'Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList';
 }
 
 {
@@ -130,7 +130,7 @@ throws_ok { Gitalist::Model::CollectionOfRepos->COMPONENT($ctx_gen->(), { repos 
         "$FindBin::Bin/lib/repositories/nodescription",
     ]});
     is scalar($i->repositories->flatten), 3, 'Found 3 repos';
-    isa_ok $i, 'Gitalist::Git::CollectionOfRepositories::FromListOfDirectories';
+    isa_ok $i, 'Git::Gitalist::CollectionOfRepositories::FromListOfDirectories';
 }
 
 {
@@ -155,7 +155,7 @@ throws_ok { Gitalist::Model::CollectionOfRepos->COMPONENT($ctx_gen->(), { repos 
 
 sub test_vhost_instance {
     test_with_config({
-        class    => 'Gitalist::Git::CollectionOfRepositories::Vhost',
+        class    => 'Git::Gitalist::CollectionOfRepositories::Vhost',
         args     => {
             vhost_dispatch => {
                 "git.shadowcat.co.uk" => "default",
@@ -164,9 +164,9 @@ sub test_vhost_instance {
                 "_default_" => "default",
             },
             collections => {
-                moose => { class => 'Gitalist::Git::CollectionOfRepositories::FromDirectory', repo_dir => "$FindBin::Bin/lib/repositories_sets/moose" },
-                catgit => { class => 'Gitalist::Git::CollectionOfRepositories::FromDirectory', repo_dir => "$FindBin::Bin/lib/repositories_sets/catgit" },
-                default => { class => 'Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive', repo_dir => "$FindBin::Bin/lib/repositories_sets"},
+                moose => { class => 'Git::Gitalist::CollectionOfRepositories::FromDirectory', repo_dir => "$FindBin::Bin/lib/repositories_sets/moose" },
+                catgit => { class => 'Git::Gitalist::CollectionOfRepositories::FromDirectory', repo_dir => "$FindBin::Bin/lib/repositories_sets/catgit" },
+                default => { class => 'Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive', repo_dir => "$FindBin::Bin/lib/repositories_sets"},
             }
         },
     });

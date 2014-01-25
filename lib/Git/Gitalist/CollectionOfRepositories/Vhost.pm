@@ -1,8 +1,8 @@
 use MooseX::Declare;
 use Class::Load;
 
-class Gitalist::Git::CollectionOfRepositories::Vhost
-     with Gitalist::Git::CollectionOfRepositoriesWithRequestState {
+class Git::Gitalist::CollectionOfRepositories::Vhost
+     with Git::Gitalist::CollectionOfRepositoriesWithRequestState {
 
     use MooseX::Types::Moose qw/HashRef/;
     sub BUILDARGS { # FIXME - This is fuck ugly!
@@ -34,14 +34,14 @@ class Gitalist::Git::CollectionOfRepositories::Vhost
         },
     );
 
-    method implementation_class { 'Gitalist::Git::CollectionOfRepositories::VhostImpl' }
+    method implementation_class { 'Git::Gitalist::CollectionOfRepositories::VhostImpl' }
     method extract_request_state ($ctx) {
         return (vhost => $ctx->uri->host);
     }
 }
 
-class Gitalist::Git::CollectionOfRepositories::VhostImpl
-    with Gitalist::Git::CollectionOfRepositories {
+class Git::Gitalist::CollectionOfRepositories::VhostImpl
+    with Git::Gitalist::CollectionOfRepositories {
     use MooseX::Types::Moose qw/ HashRef Str /;
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Path::Class qw/Dir/;
@@ -73,10 +73,10 @@ class Gitalist::Git::CollectionOfRepositories::VhostImpl
 
     method debug_string { 'chosen collection ' . ref($self->chosen_collection) . " " . $self->chosen_collection->debug_string }
 
-    role_type 'Gitalist::Git::CollectionOfRepositories';
+    role_type 'Git::Gitalist::CollectionOfRepositories';
     has chosen_collection => (
         is => 'ro',
-        does => 'Gitalist::Git::CollectionOfRepositories',
+        does => 'Git::Gitalist::CollectionOfRepositories',
         handles => [qw/
             _get_repo_from_name
             _build_repositories
@@ -93,19 +93,19 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::CollectionOfRepositories::Vhost
+Git::Gitalist::CollectionOfRepositories::Vhost
 
 =head1 SYNOPSIS
 
-    my $repo = Gitalist::Git::CollectionOfRepositories::Vhost->new(
+    my $repo = Git::Gitalist::CollectionOfRepositories::Vhost->new(
         vhost_dispatch => {
             "git.shadowcat.co.uk" => "foo",
             "git.moose.perl.org" => "bar",
             "_default_" => "foo",
         },
         collections => {
-            foo => { class => Gitalist::Git::CollectionOfRepositories::XXX', %args },
-            bar => { class => Gitalist::Git::CollectionOfRepositories::XXX', %args },
+            foo => { class => Git::Gitalist::CollectionOfRepositories::XXX', %args },
+            bar => { class => Git::Gitalist::CollectionOfRepositories::XXX', %args },
         }
     );
     my $repository_list = $repo->repositories;
@@ -116,7 +116,7 @@ Gitalist::Git::CollectionOfRepositories::Vhost
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>, L<Gitalist::Git::Repository>
+L<Git::Gitalist::CollectionOfRepositories>, L<Git::Gitalist::Repository>
 
 =head1 AUTHORS
 

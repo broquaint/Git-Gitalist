@@ -1,10 +1,10 @@
 use MooseX::Declare;
 
-class Gitalist::Git::CollectionOfRepositories::FromListOfDirectories with Gitalist::Git::CollectionOfRepositories {
+class Git::Gitalist::CollectionOfRepositories::FromListOfDirectories with Git::Gitalist::CollectionOfRepositories {
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Moose qw/ ArrayRef HashRef /;
     use MooseX::Types::Path::Class qw/Dir/;
-    use Gitalist::Git::Types qw/ ArrayRefOfDirs /;
+    use Git::Gitalist::Types qw/ ArrayRefOfDirs /;
     use File::Basename qw/basename/;
     use Path::Class qw/dir/;
     use Moose::Autobox;
@@ -32,7 +32,7 @@ class Gitalist::Git::CollectionOfRepositories::FromListOfDirectories with Gitali
     }
 
     method _get_repo_from_name (NonEmptySimpleStr $name) {
-        return Gitalist::Git::Repository->new($self->_get_path_for_repository_name($name));
+        return Git::Gitalist::Repository->new($self->_get_path_for_repository_name($name));
     }
 
     ## Builders
@@ -45,11 +45,11 @@ class Gitalist::Git::CollectionOfRepositories::FromListOfDirectories with Gitali
 
 =head1 NAME
 
-Gitalist::Git::CollectionOfRepositories::FromListOfDirectories - Model of a collection of git repositories
+Git::Gitalist::CollectionOfRepositories::FromListOfDirectories - Model of a collection of git repositories
 
 =head1 SYNOPSIS
 
-    my $collection = Gitalist::Git::CollectionOfRepositories::FromListOfDirectories->new( repos => [qw/
+    my $collection = Git::Gitalist::CollectionOfRepositories::FromListOfDirectories->new( repos => [qw/
         /path/to/repos1
         /path/to/repos2
     /] );
@@ -69,7 +69,7 @@ A list of git repository directories
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>, L<Gitalist::Git::Repository>
+L<Git::Gitalist::CollectionOfRepositories>, L<Git::Gitalist::Repository>
 
 =head1 AUTHORS
 

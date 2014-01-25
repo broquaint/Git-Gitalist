@@ -12,12 +12,12 @@ use Test::More qw/no_plan/;
 use Test::Exception;
 use Data::Dumper;
 
-BEGIN { use_ok 'Gitalist::Git::Head' }
+BEGIN { use_ok 'Git::Gitalist::Head' }
 
 
 my $revline="a92fb1c9282f7319099ce7f783c8be7d5360f6e3\0refs/heads/model-cleanup\0Zachary Stevens <zts\@cryptocracy.com> 1277601094 +0100";
-my $instance = Gitalist::Git::Head->new($revline);
-isa_ok($instance, 'Gitalist::Git::Head');
+my $instance = Git::Gitalist::Head->new($revline);
+isa_ok($instance, 'Git::Gitalist::Head');
 
 # Create an instance, passing last_change as a DateTime
 use DateTime;
@@ -26,10 +26,10 @@ my $dt = DateTime->from_epoch(
     epoch => @$timespec[0],
     time_zone => @$timespec[1],
 );
-my $head = Gitalist::Git::Head->new(
+my $head = Git::Gitalist::Head->new(
     sha1 => 'bca1153c22e393a952b6715bf2212901e4e77215',
     name => 'master',
     committer => 'Zachary Stevens <zts@cryptocracy.com>',
     last_change => $dt,
 );
-isa_ok($head, 'Gitalist::Git::Head');
+isa_ok($head, 'Git::Gitalist::Head');

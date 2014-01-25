@@ -14,11 +14,11 @@ use Test::Exception;
 use Path::Class 'dir';
 use Data::Dumper;
 
-BEGIN { use_ok 'Gitalist::Git::CollectionOfRepositories::FromDirectory' }
+BEGIN { use_ok 'Git::Gitalist::CollectionOfRepositories::FromDirectory' }
 
 my $repo_dir = dir( "$Bin/lib/repositories" );
-my $repo = Gitalist::Git::CollectionOfRepositories::FromDirectory->new( repo_dir => $repo_dir );
-isa_ok($repo, 'Gitalist::Git::CollectionOfRepositories::FromDirectory');
+my $repo = Git::Gitalist::CollectionOfRepositories::FromDirectory->new( repo_dir => $repo_dir );
+isa_ok($repo, 'Git::Gitalist::CollectionOfRepositories::FromDirectory');
 
 is($repo->repo_dir, $repo_dir, "repo->repo_dir is correct" );
 
@@ -33,7 +33,7 @@ ok( ! $repo->_is_git_repo( $repoEmpty ), 'is_git_repo is false for empty dir' );
 
 my $repository_list = $repo->repositories;
 ok(scalar @{$repository_list} == 3, '->repositories is an array with the correct number of members' );
-isa_ok($repository_list->[0], 'Gitalist::Git::Repository');
+isa_ok($repository_list->[0], 'Git::Gitalist::Repository');
 is($repository_list->[0]->{name}, 'bare.git', '->repositories has correct name for "bare.git" repo' );
 
 dies_ok {
@@ -49,18 +49,18 @@ dies_ok {
 } 'throws exception for directory traversal';
 
 my $repository = $repo->get_repository('repo1');
-isa_ok($repository, 'Gitalist::Git::Repository');
+isa_ok($repository, 'Git::Gitalist::Repository');
 
 
 # check for bug where get_repository blew up if repo_dir
 # was a relative path
 lives_ok {
     my $repo2_dir = "$Bin/lib/../lib/repositories";
-    my $repo2 = Gitalist::Git::CollectionOfRepositories::FromDirectory->new( repo_dir => $repo2_dir );
+    my $repo2 = Git::Gitalist::CollectionOfRepositories::FromDirectory->new( repo_dir => $repo2_dir );
     my $repo2_proj = $repo2->get_repository('repo1');
 } 'relative repo_dir properly handled';
 
-my $repo_eok = Gitalist::Git::CollectionOfRepositories::FromDirectory->new(
+my $repo_eok = Git::Gitalist::CollectionOfRepositories::FromDirectory->new(
     repo_dir  => $repo_dir,
     export_ok => 'export-ok',
 );

@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-class TestModelFancy with Gitalist::Git::CollectionOfRepositories {
+class TestModelFancy with Git::Gitalist::CollectionOfRepositories {
     use MooseX::Types::Path::Class qw/Dir/;
 
     has fanciness => (
@@ -19,7 +19,7 @@ class TestModelFancy with Gitalist::Git::CollectionOfRepositories {
         [$self->get_repository('repo1')]
     }
     method _get_repo_from_name($name) {
-        Gitalist::Git::Repository->new($self->repo_dir->subdir($name)->resolve);
+        Git::Gitalist::Repository->new($self->repo_dir->subdir($name)->resolve);
     }
 
     method debug_string { 'it is always repo1' }

@@ -1,4 +1,4 @@
-package Gitalist::Git::Serializable;
+package Git::Gitalist::Serializable;
 
 use Moose::Role;
 use MooseX::Storage;

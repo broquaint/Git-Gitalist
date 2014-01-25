@@ -1,7 +1,7 @@
-package Gitalist::Git::Object::Tag;
+package Git::Gitalist::Object::Tag;
 use MooseX::Declare;
 
-class Gitalist::Git::Object::Tag extends Gitalist::Git::Object {
+class Git::Gitalist::Object::Tag extends Git::Gitalist::Object {
     has '+type' => ( default => 'tag' );
     has '+_gpp_obj' => ( handles => [ 'object',
                                       'tag',
@@ -9,13 +9,13 @@ class Gitalist::Git::Object::Tag extends Gitalist::Git::Object {
                                       'tagged_time',
                                   ],
                          );
-    has commit => ( isa => 'Gitalist::Git::Object::Commit',
+    has commit => ( isa => 'Git::Gitalist::Object::Commit',
                     is => 'ro',
                     lazy_build => 1,
                   );
 
     method _build_commit {
-        return Gitalist::Git::Object::Commit->new(
+        return Git::Gitalist::Object::Commit->new(
             repository => $self->repository,
             sha1       => $self->object,
             type       => 'commit',
@@ -33,7 +33,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Object::Tag - Git::Object::Tag module for Gitalist
+Git::Gitalist::Object::Tag - Git::Object::Tag module for Gitalist
 
 =head1 SYNOPSIS
 
@@ -42,7 +42,7 @@ Gitalist::Git::Object::Tag - Git::Object::Tag module for Gitalist
 =head1 DESCRIPTION
 
 Represents a tag object in a git repository.
-Subclass of C<Gitalist::Git::Object>.
+Subclass of C<Git::Gitalist::Object>.
 
 
 =head1 ATTRIBUTES

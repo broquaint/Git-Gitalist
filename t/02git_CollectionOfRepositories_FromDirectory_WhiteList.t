@@ -13,14 +13,14 @@ use Test::Exception;
 
 use Data::Dumper;
 
-BEGIN { use_ok 'Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList' }
+BEGIN { use_ok 'Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList' }
 
 my $repo_dir = "$Bin/lib/repositories";
-my $repo     = Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList->new(
+my $repo     = Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList->new(
    repo_dir  => $repo_dir,
    whitelist => "$repo_dir/projects.list",
 );
-isa_ok($repo, 'Gitalist::Git::CollectionOfRepositories::FromDirectory::WhiteList');
+isa_ok($repo, 'Git::Gitalist::CollectionOfRepositories::FromDirectory::WhiteList');
 
 my @repos = @{$repo->repositories};
 is(scalar @repos, 2, 'Only 2 repos found' );

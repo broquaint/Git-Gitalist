@@ -1,9 +1,9 @@
-package Gitalist::Git::Object::Tree;
+package Git::Gitalist::Object::Tree;
 use MooseX::Declare;
 
-class Gitalist::Git::Object::Tree
-    extends Gitalist::Git::Object
-    with Gitalist::Git::Object::HasTree {
+class Git::Gitalist::Object::Tree
+    extends Git::Gitalist::Object
+    with Git::Gitalist::Object::HasTree {
         has '+type' => ( default => 'tree' );
         has '+_gpp_obj' => ( handles => [ 'directory_entries',
                                       ],
@@ -16,7 +16,7 @@ __END__
 
 =head1 NAME
 
-Gitalist::Git::Object::Tree - Git::Object::Tree module for Gitalist
+Git::Gitalist::Object::Tree - Git::Object::Tree module for Gitalist
 
 =head1 SYNOPSIS
 
@@ -25,7 +25,7 @@ Gitalist::Git::Object::Tree - Git::Object::Tree module for Gitalist
 =head1 DESCRIPTION
 
 Represents a tree object in a git repository.
-Subclass of C<Gitalist::Git::Object>.
+Subclass of C<Git::Gitalist::Object>.
 
 
 =head1 ATTRIBUTES

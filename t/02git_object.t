@@ -14,26 +14,26 @@ use Data::Dumper;
 use Test::Deep;
 
 use Path::Class;
-use Gitalist::Git::Repository;
-my $repository = Gitalist::Git::Repository->new(
+use Git::Gitalist::Repository;
+my $repository = Git::Gitalist::Repository->new(
     dir("$Bin/lib/repositories/repo1"),
 );
 
 BEGIN {
-    use_ok 'Gitalist::Git::Object::Tree';
-    use_ok 'Gitalist::Git::Object::Blob';
-    use_ok 'Gitalist::Git::Object::Commit';
-    use_ok 'Gitalist::Git::Object::Tag';
+    use_ok 'Git::Gitalist::Object::Tree';
+    use_ok 'Git::Gitalist::Object::Blob';
+    use_ok 'Git::Gitalist::Object::Commit';
+    use_ok 'Git::Gitalist::Object::Tag';
 }
 
-my $object = Gitalist::Git::Object::Tree->new(
+my $object = Git::Gitalist::Object::Tree->new(
     repository => $repository,
     sha1 => '729a7c3f6ba5453b42d16a43692205f67fb23bc1',
     type => 'tree',
     file => 'dir1',
     mode => 16384,
 );
-isa_ok($object, 'Gitalist::Git::Object::Tree', 'tree object');
+isa_ok($object, 'Git::Gitalist::Object::Tree', 'tree object');
 is($object->sha1,'729a7c3f6ba5453b42d16a43692205f67fb23bc1', 'sha1 is correct');
 is($object->type, 'tree', 'type is correct');
 is($object->file, 'dir1', 'file is correct');
@@ -44,14 +44,14 @@ is($object,'729a7c3f6ba5453b42d16a43692205f67fb23bc1', 'stringifies correctly');
 
 cmp_deeply $object->pack, {
     __CLASS__
-         => 'Gitalist::Git::Object::Tree',
+         => 'Git::Gitalist::Object::Tree',
     file   => 'dir1',
     mode   => 16384,
     modestr
          => 'drwxr-xr-x',
     repository
          => {
-             __CLASS__   => 'Gitalist::Git::Repository',
+             __CLASS__   => 'Git::Gitalist::Repository',
              description => 'some test repository',
              is_bare     => 1,
              last_change => '2011-06-05T23:00:44Z',
@@ -64,11 +64,11 @@ cmp_deeply $object->pack, {
 }, 'Serialized tree correctly';
 
 # Create object from sha1.
-my $obj2 = Gitalist::Git::Object::Blob->new(
+my $obj2 = Git::Gitalist::Object::Blob->new(
     repository => $repository,
     sha1 => '5716ca5987cbf97d6bb54920bea6adde242d87e6',
 );
-isa_ok($obj2, 'Gitalist::Git::Object::Blob', 'blob object');
+isa_ok($obj2, 'Git::Gitalist::Object::Blob', 'blob object');
 is($obj2->sha1,'5716ca5987cbf97d6bb54920bea6adde242d87e6', 'sha1 is correct');
 is($obj2->type, 'blob', 'type is correct');
 is($obj2->mode, 0, 'mode is correct');
@@ -84,13 +84,13 @@ dies_ok {
 
 cmp_deeply $obj2->pack,  {
     __CLASS__
-         => 'Gitalist::Git::Object::Blob',
+         => 'Git::Gitalist::Object::Blob',
     mode   => 0,
     modestr
          => '----------',
     repository
          => {
-             __CLASS__   => 'Gitalist::Git::Repository',
+             __CLASS__   => 'Git::Gitalist::Repository',
              description => 'some test repository',
              is_bare     => 1,
              last_change => '2011-06-05T23:00:44Z',
@@ -102,22 +102,22 @@ cmp_deeply $obj2->pack,  {
     type   => 'blob'
 }, 'Serialized blob correctly';
 
-my $commit_obj = Gitalist::Git::Object::Commit->new(
+my $commit_obj = Git::Gitalist::Object::Commit->new(
     repository => $repository,
     sha1 => '3f7567c7bdf7e7ebf410926493b92d398333116e',
 );
-isa_ok($commit_obj, 'Gitalist::Git::Object::Commit', "commit object");
-isa_ok($commit_obj->tree->[0], 'Gitalist::Git::Object::Tree');
+isa_ok($commit_obj, 'Git::Gitalist::Object::Commit', "commit object");
+isa_ok($commit_obj->tree->[0], 'Git::Gitalist::Object::Tree');
 
 cmp_deeply $commit_obj->pack,  {
     __CLASS__
-         => 'Gitalist::Git::Object::Commit',
+         => 'Git::Gitalist::Object::Commit',
     mode   => 0,
     modestr
          => '----------',
     repository
          => {
-             __CLASS__   => 'Gitalist::Git::Repository',
+             __CLASS__   => 'Git::Gitalist::Repository',
              description => 'some test repository',
              is_bare     => 1,
              last_change => '2011-06-05T23:00:44Z',
@@ -128,13 +128,13 @@ cmp_deeply $commit_obj->pack,  {
     size   => 218,
     tree   => [ {
         __CLASS__
-             => 'Gitalist::Git::Object::Tree',
+             => 'Git::Gitalist::Object::Tree',
         mode   => 0,
         modestr
              => '----------',
         repository
              => {
-                 __CLASS__   => 'Gitalist::Git::Repository',
+                 __CLASS__   => 'Git::Gitalist::Repository',
                  description => 'some test repository',
                  is_bare     => 1,
                  last_change => '2011-06-05T23:00:44Z',
@@ -197,7 +197,7 @@ index 257cc56..5716ca5 100644
         or warn("Contents was $contents");
 }
 
-my $blame_this = Gitalist::Git::Object::Commit->new(
+my $blame_this = Git::Gitalist::Object::Commit->new(
     repository => $repository,
     sha1       => 'd6ddf8b26be63066e01d96a0922c87cd8d6e2270',
 );

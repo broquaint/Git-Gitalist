@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-class Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive {
+class Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive {
     use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
     use MooseX::Types::Path::Class qw/Dir/;
 
@@ -41,21 +41,21 @@ class Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive {
     ## Builders
     method _build_repositories {
       return [
-        map { Gitalist::Git::Repository->new($_, $self->_get_repo_name("$_")) } $self->_find_repos( $self->repo_dir )
+        map { Git::Gitalist::Repository->new($_, $self->_get_repo_name("$_")) } $self->_find_repos( $self->repo_dir )
       ];
     }
-    with 'Gitalist::Git::CollectionOfRepositories';
+    with 'Git::Gitalist::CollectionOfRepositories';
 }                         # end class
 
 __END__
 
 =head1 NAME
 
-Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive - Model of recursive directories containing git repositories
+Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive - Model of recursive directories containing git repositories
 
 =head1 SYNOPSIS
 
-    my $repo = Gitalist::Git::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $Dir );
+    my $repo = Git::Gitalist::CollectionOfRepositories::FromDirectoryRecursive->new( repo_dir => $Dir );
     my $repository_list = $repo->repositories;
     my $first_repository = $repository_list->[0];
     my $named_repository = $repo->get_repository('Gitalist');
@@ -72,7 +72,7 @@ The filesystem root of the C<Repo>.
 
 =head1 SEE ALSO
 
-L<Gitalist::Git::CollectionOfRepositories>, L<Gitalist::Git::Repository>
+L<Git::Gitalist::CollectionOfRepositories>, L<Git::Gitalist::Repository>
 
 =head1 AUTHORS
 

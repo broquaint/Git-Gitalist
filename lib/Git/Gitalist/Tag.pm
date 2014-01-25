@@ -1,13 +1,13 @@
-package Gitalist::Git::Tag;
+package Git::Gitalist::Tag;
 
 use Moose;
 use namespace::autoclean;
 
-with 'Gitalist::Git::Serializable';
+with 'Git::Gitalist::Serializable';
 
 use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
 use MooseX::Types::Moose          qw/Maybe/;
-use Gitalist::Git::Types          qw/SHA1/;
+use Git::Gitalist::Types          qw/SHA1/;
 use MooseX::Types::DateTime       qw/ DateTime /;
 
 use aliased 'DateTime' => 'DT';

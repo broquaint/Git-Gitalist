@@ -25,6 +25,9 @@ requires 'namespace::autoclean' => '0';
 requires 'Path::Class'          => '0';
 requires 'Scalar::Util'         => '0';
 
+# Syntax sugar
+requires 'Method::Signatures' => '0';
+
 # Moosery
 requires 'Moose'                         => '0';
 requires 'MooseX::StrictConstructor'     => '0';
@@ -34,14 +37,6 @@ requires 'MooseX::Types::Common::String' => '0';
 requires 'MooseX::Types::DateTime'       => '0';
 requires 'MooseX::Types::Moose'          => '0';
 requires 'MooseX::Types::Path::Class'    => '0';
-
-# New deps
-requires 'Method::Signatures' => '0';
-
-# To remove
-
-requires 'Moose::Autobox' => '0';
-requires 'MooseX::Declare' => '0';
 
 # Testing
 test_requires 'Test::More' => '0.88';

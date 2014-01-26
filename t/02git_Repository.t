@@ -1,18 +1,11 @@
-use FindBin qw/$Bin/;
-BEGIN {
-    my $env = "$FindBin::Bin/../script/env";
-    if (-r $env) {
-        do $env or die $@;
-    }
-}
-
 use strict;
 use warnings;
+
 use Test::More qw/no_plan/;
 use Test::Exception;
 use Test::utf8;
+
 use Encode qw/decode_utf8/;
-use Data::Dumper;
 use Scalar::Util qw/set_prototype/;
 
 BEGIN {
@@ -38,7 +31,7 @@ dies_ok {
 } 'New repository with no args';
 
 use Path::Class;
-my $gitdir = dir("$Bin/lib/repositories/repo1");
+my $gitdir = dir("t/lib/repositories/repo1");
 
 my $proj = Git::Gitalist::Repository->new($gitdir);
 isa_ok($proj, 'Git::Gitalist::Repository');

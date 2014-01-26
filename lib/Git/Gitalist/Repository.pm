@@ -1,297 +1,282 @@
-use MooseX::Declare;
+package Git::Gitalist::Repository;
 
-class Git::Gitalist::Repository with (Git::Gitalist::HasUtils, Git::Gitalist::Serializable) {
-    use MooseX::Storage::Meta::Attribute::Trait::DoNotSerialize;
+use Moose;
 
-    use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
-    use MooseX::Types::Moose          qw/Str Maybe Bool HashRef ArrayRef/;
-    use Git::Gitalist::Types          qw/SHA1 Dir/;
-    use MooseX::Types::DateTime       qw/ DateTime /;
+with qw(
+  Git::Gitalist::HasUtils
+  Git::Gitalist::Serializable
+);
 
-    use Moose::Autobox;
-    use aliased 'DateTime' => 'DT';
-    use List::MoreUtils qw/any zip/;
-    use Encode          qw/decode/;
+use Method::Signatures;
 
-    use if $^O ne 'MSWin32' => 'I18N::Langinfo', qw/langinfo CODESET/;
+use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
+use MooseX::Types::Moose          qw/Str Maybe Bool HashRef ArrayRef/;
+use MooseX::Types::DateTime       qw/DateTime/;
 
-    use Git::Gitalist::Object::Blob;
-    use Git::Gitalist::Object::Tree;
-    use Git::Gitalist::Object::Commit;
-    use Git::Gitalist::Object::Tag;
-    use Git::Gitalist::Head;
-    use Git::Gitalist::Tag;
+use Git::Gitalist::Types          qw/SHA1 Dir/;
 
-    our $SHA1RE = qr/[0-9a-fA-F]{40}/;
+use aliased 'DateTime' => 'DT';
+use List::MoreUtils qw/any zip/;
+use Encode          qw/decode/;
 
-    around BUILDARGS (ClassName $class: Dir $dir, Str $override_name = '') {
-        # Allows us to be called as Repository->new($dir)
-        # Last path component becomes $self->name
-        # Full path to git objects becomes $self->path
-        my $name = $dir->dir_list(-1);
-        if(-f $dir->file('.git', 'HEAD')) { # Non-bare repo above .git
-            $dir  = $dir->subdir('.git');
-            $name = $dir->dir_list(-2, 1); # .../name/.git
-        } elsif('.git' eq $dir->dir_list(-1)) { # Non-bare repo in .git
-            $name = $dir->dir_list(-2);
-        }
-        confess("Can't find a git repository at " . $dir)
-            unless -f $dir->file('HEAD');
-        return $class->$orig(name => $override_name || $name,
-                             path => $dir);
+use if $^O ne 'MSWin32' => 'I18N::Langinfo', qw/langinfo CODESET/;
+
+use Git::Gitalist::Object::Blob;
+use Git::Gitalist::Object::Tree;
+use Git::Gitalist::Object::Commit;
+use Git::Gitalist::Object::Tag;
+use Git::Gitalist::Head;
+use Git::Gitalist::Tag;
+
+our $SHA1RE = qr/[0-9a-fA-F]{40}/;
+
+has name => (
+  isa      => NonEmptySimpleStr,
+  is       => 'ro',
+  required => 1,
+);
+
+has path => (
+  isa    => Dir,
+  is     => 'ro',
+  required => 1,
+  traits => ['DoNotSerialize'],
+);
+
+has description => (
+  isa        => Str,
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+has owner => (
+  isa        => NonEmptySimpleStr,
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+has last_change => (
+  isa        => Maybe[DateTime],
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+has is_bare => (
+  isa     => Bool,
+  is      => 'ro',
+  lazy    => 1,
+  default => sub {
+    -d $_[0]->path->parent->subdir($_[0]->name)
+  },
+);
+
+has heads => (
+  isa        => ArrayRef['Git::Gitalist::Head'],
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+has tags => (
+  isa        => ArrayRef['Git::Gitalist::Tag'],
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+has references => (
+  isa        => HashRef[ArrayRef[Str]],
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+around BUILDARGS => method($orig: $class, Git::Gitalist::Types::Dir $dir, Str $override_name = '') {
+    # Allows us to be called as Repository->new($dir)
+    # Last path component becomes $self->name
+    # Full path to git objects becomes $self->path
+    my $name = $dir->dir_list(-1);
+    if(-f $dir->file('.git', 'HEAD')) { # Non-bare repo above .git
+        $dir  = $dir->subdir('.git');
+        $name = $dir->dir_list(-2, 1); # .../name/.git
+    } elsif('.git' eq $dir->dir_list(-1)) { # Non-bare repo in .git
+        $name = $dir->dir_list(-2);
     }
 
-    has name => ( isa => NonEmptySimpleStr,
-                  is => 'ro', required => 1 );
+    confess("Can't find a git repository at " . $dir)
+        unless -f $dir->file('HEAD');
 
-    has path => ( isa => Dir,
-                  is => 'ro', required => 1,
-                  traits => ['DoNotSerialize'] );
+    return $class->$orig(name => $override_name || $name,
+                         path => $dir);
+};
 
-    has description => ( isa => Str,
-                         is => 'ro',
-                         lazy_build => 1,
-                     );
+method BUILD($args) {
+    $self->$_() for qw/last_change owner description /; # Ensure to build early.
+}
 
-    has owner => ( isa => NonEmptySimpleStr,
-                   is => 'ro',
-                   lazy_build => 1,
-               );
+## Public methods
 
-    has last_change => ( isa => Maybe[DateTime],
-                         is => 'ro',
-                         lazy_build => 1,
-                     );
+method head_hash (Str $head?) {
+    my $output = $self->run_cmd(qw/rev-parse --verify/, $head || 'HEAD' );
+    confess("No such head: " . $head) unless defined $output;
 
-    has is_bare => ( isa => Bool,
-                     is => 'ro',
-                     lazy => 1,
-                     default => sub {
-                         -d $_[0]->path->parent->subdir($_[0]->name)
-                             ? 1 : 0
-                         },
-                     );
-    has heads => ( isa => ArrayRef['Git::Gitalist::Head'],
-                   is => 'ro',
-                   lazy_build => 1);
-    has tags => ( isa => ArrayRef['Git::Gitalist::Tag'],
-                   is => 'ro',
-                   lazy_build => 1);
-    has references => ( isa => HashRef[ArrayRef[Str]],
-                        is => 'ro',
-                        lazy_build => 1 );
+    my($sha1) = $output =~ /^($SHA1RE)$/;
+    return $sha1;
+}
 
-    method BUILD {
-        $self->$_() for qw/last_change owner description /; # Ensure to build early.
+method get_object (MooseX::Types::Common::String::NonEmptySimpleStr $sha1) {
+    unless (is_SHA1($sha1)) {
+        $sha1 = $self->head_hash($sha1);
     }
+    my $type = $self->run_cmd('cat-file', '-t', $sha1);
+    chomp($type);
+    my $class = 'Git::Gitalist::Object::' . ucfirst($type);
+    $class->new(
+        repository => $self,
+        sha1 => $sha1,
+        type => $type,
+    );
+}
 
-    ## Public methods
+method list_revs ( MooseX::Types::Common::String::NonEmptySimpleStr :$sha1!,
+                   Int :$count?,
+                   Int :$skip?,
+                   HashRef :$search?,
+                   MooseX::Types::Common::String::NonEmptySimpleStr :$file? ) {
+    $sha1 = $self->head_hash($sha1)
+        if !$sha1 || $sha1 !~ $SHA1RE;
 
-    method head_hash (Str $head?) {
-        my $output = $self->run_cmd(qw/rev-parse --verify/, $head || 'HEAD' );
-        confess("No such head: " . $head) unless defined $output;
-
-        my($sha1) = $output =~ /^($SHA1RE)$/;
-        return $sha1;
-    }
-
-    method get_object (NonEmptySimpleStr $sha1) {
-        unless (is_SHA1($sha1)) {
-            $sha1 = $self->head_hash($sha1);
-        }
-        my $type = $self->run_cmd('cat-file', '-t', $sha1);
-        chomp($type);
-        my $class = 'Git::Gitalist::Object::' . ucfirst($type);
-        $class->new(
-            repository => $self,
-            sha1 => $sha1,
-            type => $type,
+    my @search_opts;
+    if ($search and exists $search->{text}) {
+        $search->{type} = 'grep'
+            if $search->{type} eq 'commit';
+        @search_opts = (
+            # This seems a little fragile ...
+            qq[--$search->{type}=$search->{text}],
+            '--regexp-ignore-case',
+            $search->{regexp} ? '--extended-regexp' : '--fixed-strings'
         );
     }
 
-    method list_revs ( NonEmptySimpleStr :$sha1!,
-                       Int :$count?,
-                       Int :$skip?,
-                       HashRef :$search?,
-                       NonEmptySimpleStr :$file? ) {
-        $sha1 = $self->head_hash($sha1)
-            if !$sha1 || $sha1 !~ $SHA1RE;
+    my $output = $self->run_cmd(
+        'rev-list',
+        '--header',
+        (defined $count ? "--max-count=$count" : ()),
+        (defined $skip ? "--skip=$skip"       : ()),
+        @search_opts,
+        $sha1,
+        '--',
+        ($file ? $file : ()),
+    );
+    return unless $output;
 
-        my @search_opts;
-        if ($search and exists $search->{text}) {
-            $search->{type} = 'grep'
-                if $search->{type} eq 'commit';
-            @search_opts = (
-                # This seems a little fragile ...
-                qq[--$search->{type}=$search->{text}],
-                '--regexp-ignore-case',
-                $search->{regexp} ? '--extended-regexp' : '--fixed-strings'
-            );
-        }
+    my @revs = $self->_parse_rev_list($output);
 
-        my $output = $self->run_cmd(
-            'rev-list',
-            '--header',
-            (defined $count ? "--max-count=$count" : ()),
-            (defined $skip ? "--skip=$skip"       : ()),
-            @search_opts,
-            $sha1,
-            '--',
-            ($file ? $file : ()),
-        );
-        return unless $output;
+    return @revs;
+}
 
-        my @revs = $self->_parse_rev_list($output);
+method snapshot (MooseX::Types::Common::String::NonEmptySimpleStr :$sha1,
+             MooseX::Types::Common::String::NonEmptySimpleStr :$format
+           ) {
+    # TODO - only valid formats are 'tar' and 'zip'
+    my $formats = { tgz => 'tar', zip => 'zip' };
+    unless (exists $formats->{$format}) {
+        die("No such format: $format");
+    }
+    $format = $formats->{$format};
+    my $name = $self->name;
+    $name =~ s,([^/])/*\.git$,$1,;
+    my $filename = $name;
+    $filename .= "-$sha1.$format";
+    $name =~ s/\047/\047\\\047\047/g;
 
-        return @revs;
+    my @cmd = ('archive', "--format=$format", "--prefix=$name/", $sha1);
+    return ($filename, $self->run_cmd_fh(@cmd));
+    # TODO - support compressed archives
+}
+
+## BUILDERS
+method _build_util {
+    Git::Gitalist::Util->new(
+        repository => $self,
+    );
+}
+
+method _build_description {
+    my $description = "";
+    eval {
+        $description = $self->path->file('description')->slurp;
+        utf8::decode($description);
+        chomp $description;
+    };
+    $description = "Unnamed repository, edit the .git/description file to set a description"
+        if $description eq "Unnamed repository; edit this file 'description' to name the repository.";
+    return $description;
+}
+
+method _build_owner {
+    return 'system' if $^O =~ 'MSWin32';
+
+    my ($gecos, $name) = map { decode(langinfo(CODESET()), $_) } (getpwuid $self->path->stat->uid)[6,0];
+    $gecos =~ s/,+$//;
+    return length($gecos) ? $gecos : $name;
+}
+
+method _build_last_change {
+    my $last_change;
+    my $output = $self->run_cmd(
+        qw{ for-each-ref --format=%(committer)
+            --sort=-committerdate --count=1 refs/heads
+      });
+    if (my ($epoch, $tz) = $output =~ /\s(\d+)\s+([+-]\d+)$/) {
+        my $dt = DT->from_epoch(epoch => $epoch);
+        $dt->set_time_zone($tz);
+        $last_change = $dt;
+    }
+    return $last_change;
+}
+
+method _build_heads {
+    my @revlines = $self->run_cmd_list(qw/for-each-ref --sort=-committerdate /, '--format=%(objectname)%00%(refname)%00%(committer)', 'refs/heads');
+    my @ret;
+    for my $line (@revlines) {
+        push @ret, Git::Gitalist::Head->new($line);
+    }
+    return \@ret;
+}
+
+method _build_tags {
+    my @revlines = $self->run_cmd_list('for-each-ref',
+      '--sort=-creatordate',
+      '--format=%(objectname) %(objecttype) %(refname) %(*objectname) %(*objecttype) %(subject)%00%(creator)',
+      'refs/tags'
+    );
+    return [
+        map  Git::Gitalist::Tag->new($_),
+        grep Git::Gitalist::Tag::is_valid_tag($_), @revlines
+    ];
+}
+
+method _build_references {
+    # 5dc01c595e6c6ec9ccda4f6f69c131c0dd945f8c refs/tags/v2.6.11
+    # c39ae07f393806ccf406ef966e9a15afc43cc36a refs/tags/v2.6.11^{}
+    my @reflist = $self->run_cmd_list(qw(show-ref --dereference))
+        or return;
+    my %refs;
+    for (@reflist) {
+        push @{$refs{$1}}, $2
+            if m!^($SHA1RE)\srefs/(.*)$!;
     }
 
-    method snapshot (NonEmptySimpleStr :$sha1,
-                 NonEmptySimpleStr :$format
-               ) {
-        # TODO - only valid formats are 'tar' and 'zip'
-        my $formats = { tgz => 'tar', zip => 'zip' };
-        unless ($formats->exists($format)) {
-            die("No such format: $format");
-        }
-        $format = $formats->{$format};
-        my $name = $self->name;
-        $name =~ s,([^/])/*\.git$,$1,;
-        my $filename = $name;
-        $filename .= "-$sha1.$format";
-        $name =~ s/\047/\047\\\047\047/g;
+    return \%refs;
+}
 
-        my @cmd = ('archive', "--format=$format", "--prefix=$name/", $sha1);
-        return ($filename, $self->run_cmd_fh(@cmd));
-        # TODO - support compressed archives
-    }
+## Private methods
+method _parse_rev_list ($output) {
+    return
+        map  $self->get_gpp_object($_),
+        grep is_SHA1($_),
+        map  split(/\n/, $_, 6), split /\0/, $output;
+}
 
-    method reflog (@logargs) {
-        my @entries
-            =  $self->run_cmd(qw(log -g), @logargs)
-                =~ /(^commit.+?(?:(?=^commit)|(?=\z)))/msg;
-
-        #  commit 02526fc15beddf2c64798a947fecdd8d11bf993d
-        #  Reflog: HEAD@{14} (The Git Server <git@git.dev.venda.com>)
-        #  Reflog message: push
-        #  Author: Foo Barsby <fbarsby@example.com>
-        #  Date:   Thu Sep 17 12:26:05 2009 +0100
-        #
-        #      Merge branch 'abc123'
-
-        return map {
-            # XXX Stuff like this makes me want to switch to Git::PurePerl
-            my($sha1, $type, $author, $date)
-                = m{
-                       ^ commit \s+ ($SHA1RE)$
-                       .*?
-                       Reflog[ ]message: \s+ (.+?)$ \s+
-                     Author: \s+ ([^<]+) <.*?$ \s+
-                   Date: \s+ (.+?)$
-               }xms;
-
-            pos($_) = index($_, $date) + length $date;
-
-            # Yeah, I just did that.
-            my($msg) = /\G\s+(\S.*)/sg;
-            {
-                hash    => $sha1,
-                type    => $type,
-                author  => $author,
-
-                # XXX Add DateTime goodness.
-                date    => $date,
-                message => $msg,
-            }
-            ;
-        } @entries;
-    }
-
-    ## BUILDERS
-    method _build_util {
-        Git::Gitalist::Util->new(
-            repository => $self,
-        );
-    }
-
-    method _build_description {
-        my $description = "";
-        eval {
-            $description = $self->path->file('description')->slurp;
-            utf8::decode($description);
-            chomp $description;
-        };
-        $description = "Unnamed repository, edit the .git/description file to set a description"
-            if $description eq "Unnamed repository; edit this file 'description' to name the repository.";
-        return $description;
-    }
-
-    method _build_owner {
-        return 'system' if $^O =~ 'MSWin32';
-
-        my ($gecos, $name) = map { decode(langinfo(CODESET()), $_) } (getpwuid $self->path->stat->uid)[6,0];
-        $gecos =~ s/,+$//;
-        return length($gecos) ? $gecos : $name;
-    }
-
-    method _build_last_change {
-        my $last_change;
-        my $output = $self->run_cmd(
-            qw{ for-each-ref --format=%(committer)
-                --sort=-committerdate --count=1 refs/heads
-          });
-        if (my ($epoch, $tz) = $output =~ /\s(\d+)\s+([+-]\d+)$/) {
-            my $dt = DT->from_epoch(epoch => $epoch);
-            $dt->set_time_zone($tz);
-            $last_change = $dt;
-        }
-        return $last_change;
-    }
-
-    method _build_heads {
-        my @revlines = $self->run_cmd_list(qw/for-each-ref --sort=-committerdate /, '--format=%(objectname)%00%(refname)%00%(committer)', 'refs/heads');
-        my @ret;
-        for my $line (@revlines) {
-            push @ret, Git::Gitalist::Head->new($line);
-        }
-        return \@ret;
-    }
-
-    method _build_tags {
-        my @revlines = $self->run_cmd_list('for-each-ref',
-          '--sort=-creatordate',
-          '--format=%(objectname) %(objecttype) %(refname) %(*objectname) %(*objecttype) %(subject)%00%(creator)',
-          'refs/tags'
-        );
-        return [
-            map  Git::Gitalist::Tag->new($_),
-            grep Git::Gitalist::Tag::is_valid_tag($_), @revlines
-        ];
-    }
-
-    method _build_references {
-        # 5dc01c595e6c6ec9ccda4f6f69c131c0dd945f8c refs/tags/v2.6.11
-        # c39ae07f393806ccf406ef966e9a15afc43cc36a refs/tags/v2.6.11^{}
-        my @reflist = $self->run_cmd_list(qw(show-ref --dereference))
-            or return;
-        my %refs;
-        for (@reflist) {
-            push @{$refs{$1}}, $2
-                if m!^($SHA1RE)\srefs/(.*)$!;
-        }
-
-        return \%refs;
-    }
-
-    ## Private methods
-    method _parse_rev_list ($output) {
-        return
-            map  $self->get_gpp_object($_),
-                grep is_SHA1($_),
-                    map  split(/\n/, $_, 6), split /\0/, $output;
-    }
-
-} # end class
+1;
 
 __END__
 
@@ -303,9 +288,9 @@ Git::Gitalist::Repository - Model of a git repository
 
     my $gitrepo = dir('/repo/base/Gitalist');
     my $repository = Git::Gitalist::Repository->new($gitrepo);
-     $repository->name;        # 'Gitalist'
-     $repository->path;        # '/repo/base/Gitalist/.git'
-     $repository->description; # 'Unnamed repository.'
+    $repository->name;        # 'Gitalist'
+    $repository->path;        # '/repo/base/Gitalist/.git'
+    $repository->description; # 'Unnamed repository.'
 
 =head1 DESCRIPTION
 

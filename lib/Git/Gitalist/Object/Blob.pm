@@ -1,9 +1,10 @@
 package Git::Gitalist::Object::Blob;
-use MooseX::Declare;
 
-class Git::Gitalist::Object::Blob extends Git::Gitalist::Object {
-  has '+type' => ( default => 'blob' );
-}
+use Moose;
+
+extends 'Git::Gitalist::Object';
+
+has '+type' => ( default => 'blob' );
 
 1;
 

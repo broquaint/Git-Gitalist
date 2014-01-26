@@ -1,30 +1,38 @@
 package Git::Gitalist::Object::Tag;
-use MooseX::Declare;
 
-class Git::Gitalist::Object::Tag extends Git::Gitalist::Object {
-    has '+type' => ( default => 'tag' );
-    has '+_gpp_obj' => ( handles => [ 'object',
-                                      'tag',
-                                      'tagger',
-                                      'tagged_time',
-                                  ],
-                         );
-    has commit => ( isa => 'Git::Gitalist::Object::Commit',
-                    is => 'ro',
-                    lazy_build => 1,
-                  );
+use Moose;
 
-    method _build_commit {
-        return Git::Gitalist::Object::Commit->new(
-            repository => $self->repository,
-            sha1       => $self->object,
-            type       => 'commit',
-        );
-    }
+extends 'Git::Gitalist::Object';
 
-    method tree {
-      return [$self->repository->get_object($self->commit->tree_sha1)];
-    }
+use Method::Signatures;
+
+has '+type' => ( default => 'tag' );
+
+has '+_gpp_obj' => (
+  handles => [qw(
+    object
+    tag
+    tagger
+    tagged_time
+  )],
+);
+
+has commit => (
+  isa        => 'Git::Gitalist::Object::Commit',
+  is         => 'ro',
+  lazy_build => 1,
+);
+
+method _build_commit {
+  return Git::Gitalist::Object::Commit->new(
+    repository => $self->repository,
+    sha1       => $self->object,
+    type       => 'commit',
+  );
+}
+
+method tree {
+  return [$self->repository->get_object($self->commit->tree_sha1)];
 }
 
 1;

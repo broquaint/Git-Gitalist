@@ -1,14 +1,12 @@
 package Git::Gitalist::Object::Tree;
-use MooseX::Declare;
 
-class Git::Gitalist::Object::Tree
-    extends Git::Gitalist::Object
-    with Git::Gitalist::Object::HasTree {
-        has '+type' => ( default => 'tree' );
-        has '+_gpp_obj' => ( handles => [ 'directory_entries',
-                                      ],
-                         );
-    }
+use Moose;
+
+extends 'Git::Gitalist::Object';
+with 'Git::Gitalist::Object::HasTree';
+
+has '+type' => ( default => 'tree' );
+has '+_gpp_obj' => ( handles => [qw(directory_entries)] );
 
 1;
 

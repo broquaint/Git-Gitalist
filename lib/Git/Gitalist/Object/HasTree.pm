@@ -1,42 +1,40 @@
 package Git::Gitalist::Object::HasTree;
-use MooseX::Declare;
 
-role Git::Gitalist::Object::HasTree {
-    has tree => ( isa => 'ArrayRef[Git::Gitalist::Object]',
-                  required => 0,
-                  is => 'ro',
-                  lazy_build => 1 );
+use Moose::Role;
+
+use Method::Signatures;
+
+has tree => (
+  isa        => 'ArrayRef[Git::Gitalist::Object]',
+  required   => 0,
+  is         => 'ro',
+  lazy_build => 1,
+);
 
 
-## Builders
-    method _build_tree {
-        my $output = $self->_run_cmd(qw/ls-tree -z/, $self->sha1);
-        return unless defined $output;
+method _build_tree {
+    my $output = $self->_run_cmd(qw/ls-tree -z/, $self->sha1);
+    return unless defined $output;
 
-        my @ret;
-        for my $line (split /\0/, $output) {
-            my ($mode, $type, $object, $file) = split /\s+/, $line, 4;
-            # Ignore commits, these represent submodules
-            next if $type eq 'commit';
-            my $class = 'Git::Gitalist::Object::' . ucfirst($type);
-            push @ret, $class->new( mode => oct $mode,
-                                    type => $type,
-                                    sha1 => $object,
-                                    file => $file,
-                                    repository => $self->repository,
-                                  );
-        }
-        return \@ret;
+    my @ret;
+    for my $line (split /\0/, $output) {
+        my ($mode, $type, $object, $file) = split /\s+/, $line, 4;
+        # Ignore commits, these represent submodules
+        next if $type eq 'commit';
+        my $class = 'Git::Gitalist::Object::' . ucfirst($type);
+        push @ret, $class->new( mode => oct $mode,
+                                type => $type,
+                                sha1 => $object,
+                                file => $file,
+                                repository => $self->repository,
+                              );
     }
-
-    method entries {
-        return $self->{_gpp_obj}->{directory_entries};
-    }
-
+    return \@ret;
 }
 
-1;
-
+method entries {
+    return $self->{_gpp_obj}->{directory_entries};
+}
 
 1;
 

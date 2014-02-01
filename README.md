@@ -2,22 +2,18 @@
 
 Git::Gitalist - An interface to git influenced by Gitalist
 
-# ATTENTION
-
-This code is a work in progress and isn't in a usable state!
-
 # CONTRIBUTING
 
 Patches are welcome, please feel free to fork on github and send pull
-requests, send patches from git format-patch to the bug tracker, or host
-your own copy of gitalist somewhere and ask us to pull from it.
+requests, send patches from `git format-patch` to the bug tracker.
+Other viable communication mediums also welcome like ...
 
 # SUPPORT
 
-Git::Gitalist has an active irc community in "#gitalist" on irc.perl.org,
-please feel free to stop by and ask questions, report bugs or
-installation issues or generally for a chat about where we plan to go
-with the project.
+Git::Gitalist has an irc community in `#gitalist` on
+[http://www.irc.perl.org/](irc.perl.org), please feel free to stop by
+and ask questions, report bugs or installation issues or generally for
+a chat about where we plan to go with the project.
 
 # SEE ALSO
 

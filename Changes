@@ -1,0 +1,5 @@
+This file documents the revision history for Perl extension Git::Gitalist.
+
+0.000001 2014-01-26
+  - Initial working version, freshly split out of Gitalist.
+

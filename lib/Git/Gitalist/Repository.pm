@@ -12,8 +12,9 @@ use Method::Signatures;
 use MooseX::Types::Common::String qw/NonEmptySimpleStr/;
 use MooseX::Types::Moose          qw/Str Maybe Bool HashRef ArrayRef/;
 use MooseX::Types::DateTime       qw/DateTime/;
+use MooseX::Types::Path::Class    qw/Dir/;
 
-use Git::Gitalist::Types          qw/SHA1 Dir/;
+use Git::Gitalist::Types          qw/SHA1/;
 
 use aliased 'DateTime' => 'DT';
 use List::MoreUtils qw/any zip/;
@@ -40,6 +41,7 @@ has path => (
   isa    => Dir,
   is     => 'ro',
   required => 1,
+  coerce => 1,
   traits => ['DoNotSerialize'],
 );
 
@@ -88,7 +90,9 @@ has references => (
   lazy_build => 1,
 );
 
-around BUILDARGS => method($orig: $class, Git::Gitalist::Types::Dir $dir, Str $override_name = '') {
+around BUILDARGS => method($orig: $class, $dir, Str $override_name = '') {
+    $dir = Path::Class::dir($dir) unless ref $dir;
+
     # Allows us to be called as Repository->new($dir)
     # Last path component becomes $self->name
     # Full path to git objects becomes $self->path

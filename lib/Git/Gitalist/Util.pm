@@ -34,17 +34,19 @@ has gpp => (
   },
 );
 
-method _build__git {
-  my $git = File::Which::which('git');
+sub git_executable_path {
+  return File::Which::which('git');
+}
 
-  if (!$git) {
-    die <<EOR;
-Could not find a git executable.
-Please specify the which git executable to use in gitweb.yml
-EOR
+method BUILDARGS(@p) {
+  my $args = $self->SUPER::BUILDARGS(@p);
+
+  unless($args->{_git}) {
+    $args->{_git} ||= git_executable_path
+         or die "Could not find a git executable in the PATH";
   }
 
-  return $git;
+  return $args;
 }
 
 method run_cmd (@args) {

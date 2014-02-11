@@ -14,13 +14,11 @@ resources repository => 'git://github.com/broquaint/Git-Gitalist.git';
 
 # Standard deps
 requires 'aliased'              => '0';
-requires 'Class::Load'          => '0';
 requires 'DateTime'             => '0';
 requires 'File::Which'          => '0';
 requires 'Git::PurePerl'        => '0.50';
 requires 'IPC::Run'             => '0';
 requires 'List::MoreUtils'      => '0';
-requires 'List::Util'           => '0';
 requires 'namespace::autoclean' => '0';
 requires 'Path::Class'          => '0';
 requires 'Scalar::Util'         => '0';
@@ -30,7 +28,6 @@ requires 'Method::Signatures' => '0';
 
 # Moosery
 requires 'Moose'                         => '0';
-requires 'MooseX::StrictConstructor'     => '0';
 requires 'MooseX::Storage'               => '0';
 requires 'MooseX::Types'                 => '0';
 requires 'MooseX::Types::Common::String' => '0';
@@ -40,7 +37,6 @@ requires 'MooseX::Types::Path::Class'    => '0';
 
 # Testing
 test_requires 'Test::More' => '0.88';
-test_requires 'Test::utf8' => '0.02';
 
 requires_external_bin 'git';
 

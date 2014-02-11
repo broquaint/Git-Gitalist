@@ -2,7 +2,7 @@ package Git::Gitalist;
 
 use Git::Gitalist::Repository;
 
-$VERSION = '0.000001';
+$VERSION = '0.000002';
 
 1;
 

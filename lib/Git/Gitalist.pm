@@ -6,6 +6,12 @@ $VERSION = '0.000001';
 
 1;
 
+__END__
+
+=pod
+
+=encoding UTF-8
+
 =head1 NAME
 
 Git::Gitalist - An interface to git influenced by Gitalist
@@ -13,8 +19,8 @@ Git::Gitalist - An interface to git influenced by Gitalist
 =head1 SYNOPSIS
 
     use Git::Gitalist;
-    my $repository = Git::Gitalist::Repository->new('some-repo/.git);
-    $repository->name;        # 'Gitalist'
+    my $repository = Git::Gitalist::Repository->new('some-repo/.git'');
+    $repository->name;        # 'Some-Repo'
     $repository->path;        # 'some-repo/.git'
 
 =head1 SEE ALSO
@@ -24,7 +30,7 @@ the real docs are in the classes further down the namespace.
 
 L<Git::Gitalist::Repository>
 
-L<Git::Gitalist::Commit>
+L<Git::Gitalist::Object::Commit>
 
 =head1 AUTHORS AND COPYRIGHT
 

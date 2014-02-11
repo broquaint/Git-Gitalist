@@ -169,10 +169,10 @@ Abstract base class for git objects.
 
 =head1 AUTHORS
 
-See L<Gitalist> for authors.
+See L<Git::Gitalist> for authors.
 
 =head1 LICENSE
 
-See L<Gitalist> for the license.
+See L<Git::Gitalist> for the license.
 
 =cut
